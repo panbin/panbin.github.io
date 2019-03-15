@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search> 
+  
+  
+    
+    <entry>
+      <title>ijkplayer</title>
+      <link href="/2018/09/30/hello/"/>
+      <url>/2018/09/30/hello/</url>
+      
+        <content type="html"><![CDATA[<h1 id="ijkplayer-android-编译"><a href="#ijkplayer-android-编译" class="headerlink" title="ijkplayer android 编译"></a><a href="https://github.com/Bilibili/ijkplayer" target="_blank" rel="noopener">ijkplayer</a> android 编译</h1><h2 id="android-版本编译"><a href="#android-版本编译" class="headerlink" title="android 版本编译"></a>android 版本编译</h2><p>ijkplayer 是 bilibili 开源的一款优秀的播放器, 基于 FFmpeg, 支持 iOS/Android, 点播/直播, 以及多种编码. 官方并不直接提供 framework 框架包, 这样大家可以根据需要选择配置, 自己编译并打包. 但是也让很多第一次使用的小伙伴一脸懵逼, 并且默认配置只支持 http, 如果想播放 https 链接的视频, 那么需要做额外的配置 </p><p><a href="https://github.com/Bilibili/ijkplayer" target="_blank" rel="noopener">github地址</a></p><p><a href="https://blog.csdn.net/linchaolong/article/details/52805666" target="_blank" rel="noopener">参考编译 CSDN</a></p><p><a href="https://www.jianshu.com/p/bd289e25d272" target="_blank" rel="noopener">参考编译 简书</a></p><h2 id="android-编译环境"><a href="#android-编译环境" class="headerlink" title="android 编译环境"></a>android 编译环境</h2><ul><li>Mac OS X Mojave 10.14</li><li>Xcode 10.01 (10B61)</li><li>NDK 10e （默认使用ndk 14b）</li><li><a href="https://dl.google.com/android/repository/android-ndk-r10e-darwin-x86_64.zip" target="_blank" rel="noopener">NDK 10e</a></li><li><a href="https://dl.google.com/android/repository/android-ndk-r14b-darwin-x86_64.zip" target="_blank" rel="noopener">NDK 14b</a></li><li><a href="https://developer.android.com/ndk/downloads/older_releases" target="_blank" rel="noopener">download more</a></li></ul><h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>安装 homebrew, git, yasm. (如果已经安装好可以跳过, 不清楚的再来一遍也无妨)</p><pre><code>#install homebrew, git, yasm* ruby -e &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)&quot;* brew install git* brew install yasm#add these lines to your ~/.bash_profile or ~/.profile# export ANDROID_SDK=&lt;your sdk path&gt;# export ANDROID_NDK=&lt;your ndk path&gt;# for example#panbindeMacBook-Pro:~ panbin$ vim .bash_profile# 不用这个，直接导入就可以了# add ndkexport ANDROID_NDK=${PATH}:/Users/panbin/Documents/tools/android-ndk-r14b/# add sdkexport ANDROID_SDK=${PATH}:/Users/panbin/Library/Android/sdk/# refreshsource .bash_profile</code></pre><h2 id="获取-ijkplayer-源码"><a href="#获取-ijkplayer-源码" class="headerlink" title="获取 ijkplayer 源码"></a>获取 ijkplayer 源码</h2><p>在一个合适的位置新建一个文件夹, 假设为桌面, 文件夹名为 <strong>ijkplayer</strong></p><p>这一步可以参考<strong>github</strong> <a href="https://github.com/Bilibili/ijkplayer" target="_blank" rel="noopener">ijkplayer</a></p><p>打开终端, 输入下面的指令</p><pre><code># 进入到刚刚新建的文件夹内cd ~/Desktop# 获取ijkplayer源码git clone https://github.com/Bilibili/ijkplayer.git ijkplayer-android# 进入源码目录cd ijkplayer-android# 切换分支 (目前为k0.8.8, 可以自行去GitHub查看最新版本号)git checkout -B latest k0.8.8</code></pre><h2 id="导出编译路径-ANDROID-NDK-amp-ANDROID-SDK"><a href="#导出编译路径-ANDROID-NDK-amp-ANDROID-SDK" class="headerlink" title="导出编译路径 ANDROID_NDK &amp; ANDROID_SDK"></a>导出编译路径 ANDROID_NDK &amp; ANDROID_SDK</h2><pre><code># export ANDROID_NDK=/Users/panbin/Documents/tools/android-ndk-r10e/export ANDROID_NDK=/Users/panbin/Documents/tools/android-ndk-r14b/export ANDROID_SDK=/Users/panbin/Library/Android/sdk/</code></pre><h2 id="配置编解码器格式支持-android-不要修改，保持默认就可以了，修改了反而编译不过"><a href="#配置编解码器格式支持-android-不要修改，保持默认就可以了，修改了反而编译不过" class="headerlink" title="配置编解码器格式支持,android 不要修改，保持默认就可以了，修改了反而编译不过"></a>配置编解码器格式支持,android 不要修改，保持默认就可以了，修改了反而编译不过</h2><p>默认为最少支持, 如果足够你使用, 可以跳过这一步. 否则可以改为以下配置:</p><ul><li><strong>module-default.sh</strong> 更多的编解码器/格式</li><li><strong>module-lite-hevc.sh</strong> 较少的编解码器/格式(包括hevc)</li><li><strong>module-lite.sh</strong> 较少的编解码器/格式(默认情况)</li></ul><pre><code># 进入 config 目录cd config# 删除当前的 module.sh 文件rm module.sh# 可根据需要替换为`module-default.sh`, `module-lite-hevc.sh`, `module-lite.sh`, 默认为 `module-lite.sh`# 创建软链接 module.sh 指向 module-default.shln -s module-default.sh module.sh# 默认格式ln -s module-lite.sh module.shcd ..</code></pre><p>tips: 删除软连接</p><pre><code>rm -fr ./module.sh</code></pre><h2 id="获取-ffmpeg-并初始化"><a href="#获取-ffmpeg-并初始化" class="headerlink" title="获取 ffmpeg 并初始化"></a>获取 ffmpeg 并初始化</h2><pre><code>./init-android.sh</code></pre><h2 id="添加-https-支持"><a href="#添加-https-支持" class="headerlink" title="添加 https 支持"></a>添加 https 支持</h2><pre><code># 获取 openssl 并初始化./init-android-openssl.sh</code></pre><h2 id="编译"><a href="#编译" class="headerlink" title="编译"></a>编译</h2><pre><code># 编译openssl, 首先 cd 到 ijkplayer/android/contrib 目录下，Android下编译脚本就放在该目录下cd android/contrib./compile-openssl.sh clean./compile-openssl.sh all# 编译ffmpeg./compile-ffmpeg.sh clean./compile-ffmpeg.sh all</code></pre><h2 id="生成对应so"><a href="#生成对应so" class="headerlink" title="生成对应so"></a>生成对应so</h2><p>切换到android目录下，执行脚本就可以生成so啦，感觉一路顺畅，一泻千里有木有。</p><pre><code># 返回到 ijkplayer/android 目录cd ..# 编译生成各CPU架构的so，如果不加 all 默认只生成 armv7a 架构的 so# 编译指定架构的so：compile-ijk.sh armv7a，具体参考 .sh 文件中的 Usage./compile-ijk.sh all</code></pre><h2 id="编译成功后，如下"><a href="#编译成功后，如下" class="headerlink" title="编译成功后，如下"></a>编译成功后，如下</h2><pre><code>[x86_64] Install        : libijkffmpeg.so =&gt; libs/x86_64/libijkffmpeg.so[x86_64] StaticLibrary  : libcpufeatures.a[x86_64] StaticLibrary  : libijkj4a.a[x86_64] StaticLibrary  : libandroid-ndk-profiler.a[x86_64] StaticLibrary  : libijksoundtouch.a[x86_64] StaticLibrary  : libyuv_static.a[x86_64] SharedLibrary  : libijksdl.so[x86_64] SharedLibrary  : libijkplayer.so[x86_64] Install        : libijksdl.so =&gt; libs/x86_64/libijksdl.so[x86_64] Install        : libijkplayer.so =&gt; libs/x86_64/libijkplayer.so/Users/panbin/Desktop/ijkplayer-android/android</code></pre><p>编译完成后 so 就放在 ijkplayer/android/ijkplayer/ijkplayer-xxx/src/main/libs 目录下。<br>此时编译好的 so 是支持 https 协议的。<br><img src="1.png" alt="1.png"></p><p>此时，把 ijkplayer/android/ijkplayer 导入 Android Studio ，ijkplayer-example 已经可以正常运行了。</p><h2 id="在自己的工程中引用-ijkplayer-和自己编译的-so"><a href="#在自己的工程中引用-ijkplayer-和自己编译的-so" class="headerlink" title="在自己的工程中引用 ijkplayer 和自己编译的 so"></a>在自己的工程中引用 ijkplayer 和自己编译的 so</h2><p>1、在 build.gradle 添加 ijkplayer-java 依赖</p><pre><code># https://github.com/Bilibili/ijkplayerimplementation &#39;tv.danmaku.ijk.media:ijkplayer-java:0.8.8&#39;</code></pre><p>2、在工程 src\main 目录下新建一个 jniLibs 目录并把 so 拷贝到对应架构名称的目录下</p><p><img src="2.png" alt="2.png"></p><h2 id="修改编译配置说明"><a href="#修改编译配置说明" class="headerlink" title="修改编译配置说明"></a>修改编译配置说明</h2><p>ijkplayer的编译配置脚本在 <code>ijkplayer/config</code> 目录下。<br>如果需要启用/停用某个解码器或功能只需要修改 <code>enable/disable</code>。</p><pre><code>export COMMON_FF_CFG_FLAGS=&quot;$COMMON_FF_CFG_FLAGS --disable-bsf=mp3_header_decompress&quot;</code></pre><p>修改后</p><pre><code>export COMMON_FF_CFG_FLAGS=&quot;$COMMON_FF_CFG_FLAGS --enable-bsf=mp3_header_decompress&quot;</code></pre><h2 id="横竖屏切换问题"><a href="#横竖屏切换问题" class="headerlink" title="横竖屏切换问题"></a>横竖屏切换问题</h2><p>默认情况下，Activity 横竖屏切换会重新创建，播放器也会被销毁重新创建。为了防止这种情况，在 <code>AndroidManifest.xml</code> 中 Activity 添加如下配置，表示下面属性变化时把事件传递给该 Activity 的 onConfigurationChanged 方法处理。</p><pre><code>android:configChanges=&quot;orientation|keyboardHidden|screenSize&quot;</code></pre><h2 id="修改jniLibs的默认路径为libs"><a href="#修改jniLibs的默认路径为libs" class="headerlink" title="修改jniLibs的默认路径为libs"></a>修改jniLibs的默认路径为libs</h2><pre><code>sourceSets {        main {            jniLibs.srcDirs = [&#39;libs&#39;]        }    }</code></pre>]]></content>
+      
+      
+      <categories>
+          
+          <category> 电影评论 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 都很好 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>typora-vue-theme主题介绍</title>
+      <link href="/2018/09/07/hello-world/"/>
+      <url>/2018/09/07/hello-world/</url>
+      
+        <content type="html"><![CDATA[<p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p><h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><pre class=" language-bash"><code class="language-bash">$ hexo new <span class="token string">"My New Post"</span></code></pre><p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p><h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><pre class=" language-bash"><code class="language-bash">$ hexo server</code></pre><p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p><h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><pre class=" language-bash"><code class="language-bash">$ hexo generate</code></pre><p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p><h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><pre class=" language-bash"><code class="language-bash">$ hexo deploy</code></pre><p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> Markdown </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Typora </tag>
+            
+            <tag> Markdown </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+  
+  
+</search>
